@@ -165,15 +165,10 @@ void Storage::clearDB(string key) {//if some file's data was changed, means that
     logger->newLog("Successfully");
 }
 
-Storage::Storage(char* path, const string& filePath, Logger& logger, int docID) {
+Storage::Storage(const string& filePath, Logger& logger, int docID) {
     this->docID = std::to_string(docID);
     this->logger = &logger;
-    dbPath = path;
-    while (dbPath[dbPath.size() - 1] != '\\')//clearing executable name of this program. because argv[0] have it and we dont need it...
-        dbPath.pop_back();
-    db1Path = dbPath;
-    dbPath += ".files\\db.txt";
-    db1Path = ".files\\" +std::to_string(docID) + ".db";
+    db1Path = ".files/" +std::to_string(docID) + ".db";
     ifstream IfileDb(db1Path);
     if (IfileDb.is_open()) {//if file is not new
         if (fileToString(db1Path) == fileToString(filePath)) {//if file is not changed after last run this program

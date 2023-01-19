@@ -49,12 +49,8 @@ string Searcher::parseDbLine(string line, int id, char delim) {
     return result;
 }
 
-Searcher::Searcher(char* path, Logger& logger) {
+Searcher::Searcher(Logger& logger) {
     this->logger = &logger;
-    dbPath = path;
-    while (dbPath[dbPath.size() - 1] != '\\')
-        dbPath.pop_back();
-    dbPath += ".files//db.txt";
 }
 
 Answer Searcher::search(vector<string> keyWords, int responses) {

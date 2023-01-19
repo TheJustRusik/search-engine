@@ -14,19 +14,15 @@ class Engine {
     vector<Storage*> storages;
     vector<string> filesPaths;
     vector<string> searchWords;
-    string configPath;
 
     nlohmann::json answerJson;
-    string answerPath = path;
-
     Logger* logger;
-    char* path;
 
     string name;
     string version;
     int maxResponses;
 public:
-    Engine(const string& configPath, Logger& logger, char* path);
+    Engine(Logger& logger);
     void find(bool isUsingRequestsJson, int counter = 0);
     void work();
 

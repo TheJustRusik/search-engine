@@ -1,10 +1,7 @@
 #include "../includes/Logger.h"
 
-Logger::Logger(const string& path) {//path for Logs.txt file
-    this->path = path;
-    while (this->path[this->path.size() - 1] != '\\')
-        this->path.pop_back();
-    this->path = this->path + "\\Logs.txt";
+Logger::Logger(string path) {//path for Logs.txt file
+    this->path = path.empty() ? "Logs.txt" : path[path.size() - 1] == '/' ? (path + "Logs.txt") : (path + "/Logs.txt");
     auto t = std::time(nullptr);
     auto tm = *std::localtime(&t);
 

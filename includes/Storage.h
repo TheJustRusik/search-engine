@@ -6,7 +6,7 @@
 
 class Storage {
     string docID;
-    string dbPath;//path for db.txt ("hear" of this program)
+    string dbPath = ".files/db.txt";//path for db.txt ("heart" of this program)
     string db1Path;//path for backup of fileName.txt
     vector<StringAndNum> words;//with this vector our program can represent content of fileName.txt
     Logger* logger;//object for logging actions of this program. Can tell what is wrong
@@ -27,7 +27,7 @@ class Storage {
 
 
 public:
-    Storage(char* path, const string& filePath, Logger& logger, int docID);
+    Storage(const string& filePath, Logger& logger, int docID);
 
     void print();
 };

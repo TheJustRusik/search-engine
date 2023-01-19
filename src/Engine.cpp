@@ -1,11 +1,9 @@
 #include "../includes/Engine.h"
 
-Engine::Engine(const string& configPath, Logger& logger, char* path) {
-    this->path = path;
-    this->configPath = configPath;
+Engine::Engine(Logger& logger) {
     this->logger = &logger;
     nlohmann::json config;
-    ifstream configFile(configPath);
+    ifstream configFile("conf.json");
     try {
         if (not configFile.is_open())
             throw std::exception();
@@ -56,8 +54,8 @@ Engine::Engine(const string& configPath, Logger& logger, char* path) {
 
 void Engine::find(bool isUsingRequestsJson, int counter) {
     for (int i = 0; i < filesPaths.size(); i++)
-        storages.push_back(new Storage(path, filesPaths[i], *logger, i));
-    Searcher searcher(path, *logger);
+        storages.push_back(new Storage(filesPaths[i], *logger, i));
+    Searcher searcher(*logger);
     Answer answer = searcher.search(searchWords, maxResponses);
     for(int i = 0; i < answer.relArr.size(); i++){
         cout<<"Score (0-worst/1-best): "<<answer.relArr[i]<<" File: "<<filesPaths[answer.docIdArr[i]]<<endl;
@@ -72,14 +70,11 @@ void Engine::find(bool isUsingRequestsJson, int counter) {
 
 void Engine::work() {
     nlohmann::json config;
-    ifstream configFile(configPath);
+    ifstream configFile("conf.json");
     configFile >> config;
 
     if (config["config"]["use_requests.json"]) {
-        string reqPath = path;
-        while(reqPath[reqPath.size() - 1] != '\\')
-            reqPath.pop_back();
-        reqPath += "requests.json";
+        string reqPath = "requests.json";
         ifstream reqFile(reqPath);
         nlohmann::json req;
         reqFile >> req;
@@ -99,10 +94,7 @@ void Engine::work() {
             searchWords.clear();
             c++;
         }
-        answerPath = path;
-        while (answerPath[answerPath.size() - 1] != '\\')
-            answerPath.pop_back();
-        answerPath += "answer.json";
+        string answerPath = "answer.json";
         ofstream answerFile(answerPath);
         answerFile << answerJson;
         answerFile.close();

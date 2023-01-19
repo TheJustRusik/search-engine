@@ -16,7 +16,7 @@ struct Srch{
 };
 
 class Searcher {
-    string dbPath;
+    string dbPath = ".files/db.txt";
     Logger* logger;
     vector<Srch> resultList;
 
@@ -27,7 +27,7 @@ class Searcher {
     int findFilePos(const string& file);
     static string parseDbLine(string line, int id, char delim = '~');
 public:
-    Searcher(char* path, Logger& logger);
+    Searcher(Logger& logger);
     Answer search(vector<string> keyWords, int responses);
 };
 
