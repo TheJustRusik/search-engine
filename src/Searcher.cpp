@@ -1,4 +1,4 @@
-#include "headers/Searcher.h"
+#include "../includes/Searcher.h"
 
 void Searcher::bubbleSort() {
     if (resultList.empty()) {

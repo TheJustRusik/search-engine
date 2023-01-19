@@ -11,6 +11,6 @@ The .files directory is needed exclusively for the search engine. You don't need
 
 What is requests.json and answer.json for? 
 
-If you want to make several requests at once, just enter them in requsts.json, 
+If you want to make several requests at once, just enter them in requests.json, 
 then in conf.json opposite "use_requests.json" check the "true" box, 
 then run the program. The answer will be both in the console and in answer.json

@@ -24,7 +24,7 @@ using std::endl;
 using std::ofstream;
 using std::ifstream;
 
-using json [[maybe_unused]] = nlohmann::json;
+using json = nlohmann::json;
 
 struct StringAndNum {
     string word;

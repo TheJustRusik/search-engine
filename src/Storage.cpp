@@ -1,4 +1,4 @@
-#include "headers/Storage.h"
+#include "../includes/Storage.h"
 
 bool Storage::haveWord(const string& word) {
     if (words.empty())return false;

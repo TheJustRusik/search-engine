@@ -29,7 +29,7 @@ class Storage {
 public:
     Storage(char* path, const string& filePath, Logger& logger, int docID);
 
-    [[maybe_unused]] void print();
+    void print();
 };
 
 #endif //SEARCHENGINE_STORAGE_H

@@ -3,7 +3,7 @@ project(SearchEngine)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(SearchEngine main.cpp headers/includes.h headers/Engine.h headers/Searcher.h headers/Logger.h headers/Storage.h Storage.cpp inlcudes.cpp Engine.cpp Logger.cpp Searcher.cpp)
+add_executable(SearchEngine src/main.cpp includes/includes.h includes/Engine.h includes/Searcher.h includes/Logger.h includes/Storage.h src/Storage.cpp src/inlcudes.cpp src/Engine.cpp src/Logger.cpp src/Searcher.cpp)
 
 include(FetchContent)
 

@@ -1,4 +1,4 @@
-#include "headers/Logger.h"
+#include "../includes/Logger.h"
 
 Logger::Logger(const string& path) {//path for Logs.txt file
     this->path = path;

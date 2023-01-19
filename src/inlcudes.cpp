@@ -1,4 +1,4 @@
-#include "headers/includes.h"
+#include "../includes/includes.h"
 
 string fileToString(const string& path) {
     ifstream input_file(path);

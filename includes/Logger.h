@@ -9,7 +9,7 @@
 class Logger {
     string path;
 public:
-    [[maybe_unused]] explicit Logger(const string& path);
+    explicit Logger(const string& path);
     ~Logger();
     void newLog(const string& message);
 };

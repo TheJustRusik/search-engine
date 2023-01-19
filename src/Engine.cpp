@@ -1,4 +1,4 @@
-#include "headers/Engine.h"
+#include "../includes/Engine.h"
 
 Engine::Engine(const string& configPath, Logger& logger, char* path) {
     this->path = path;
