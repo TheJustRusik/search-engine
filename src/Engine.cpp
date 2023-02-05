@@ -9,7 +9,6 @@ Engine::Engine(Logger& logger) {
             throw std::exception();
     }catch (...){
         cout<<"ERROR: no config file aka \"conf.json\"!\n";
-        system("pause");
         exit(EXIT_FAILURE);
     }
     configFile >> config;
@@ -20,21 +19,18 @@ Engine::Engine(Logger& logger) {
             throw std::exception();
     }catch (...){
         cout<<"ERROR: no files in config!\n";
-        system("pause");
         exit(EXIT_FAILURE);
     }
     try {
         name = config["config"]["name"];
     }catch (...){
         cout<<"ERROR: no name in config!\n";
-        system("pause");
         exit(EXIT_FAILURE);
     }
     try{
         version = config["config"]["version"];
     }catch (...){
         cout<<"ERROR: no version in config!\n";
-        system("pause");
         exit(EXIT_FAILURE);
     }
     try{
