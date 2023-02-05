@@ -19,11 +19,8 @@ string Searcher::fixWord(string word) {
     for (auto c : badThings) {
         if (word[word.size() - 1] == c)word.pop_back();
     }
-    int i = 0;
-    for (auto c : word) {
-        if(isupper(c))
-            tolower(word[i]);
-        i++;
+    for (auto& c : word) {
+        c = (char)tolower(c);
     }
     return word;
 }

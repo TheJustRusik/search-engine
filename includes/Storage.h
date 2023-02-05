@@ -11,6 +11,8 @@ class Storage {
     vector<StringAndNum> words;//with this vector our program can represent content of fileName.txt
     Logger* logger;//object for logging actions of this program. Can tell what is wrong
 
+    std::mutex& fileWork;
+
     //basic functions
     bool haveWord(const string& word);
     int findWordNum(const string& word);
@@ -27,7 +29,7 @@ class Storage {
 
 
 public:
-    Storage(const string& filePath, Logger& logger, int docID);
+    Storage(const string& filePath, Logger& logger, int docID, std::mutex& mtx);
 
     void print();
 };

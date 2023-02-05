@@ -14,6 +14,8 @@ class Engine {
     vector<Storage*> storages1;
     vector<Storage*> storages2;
 
+    std::mutex fileWork;
+
     vector<string> filesPaths;
     vector<string> searchWords;
 

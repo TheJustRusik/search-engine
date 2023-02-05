@@ -35,11 +35,8 @@ string Storage::fixWord(string word) {
     for (auto c : badThings) {
         if (word[word.size() - 1] == c)word.pop_back();
     }
-    int i = 0;
-    for (auto c : word) {
-        if (isupper(c))
-            tolower(word[i]);
-        i++;
+    for (auto& c : word) {
+        c = (char)tolower(c);
     }
     return word;
 }
@@ -134,6 +131,9 @@ void Storage::readFromDB(const string& key) {
 void Storage::writeToDB(const string& key) {
     logger->newLog("Writing to DataBase...");
     std::ofstream file(dbPath, std::ios_base::app);
+
+    fileWork.lock();
+
     if (!words.empty())
     {
         for (auto & word : words)
@@ -142,6 +142,9 @@ void Storage::writeToDB(const string& key) {
         }
     }
     file.close();
+
+    fileWork.unlock();
+
     logger->newLog("Successfully");
 }
 
@@ -161,12 +164,18 @@ void Storage::clearDB(string key) {//if some file's data was changed, means that
         }
     }
     ofstream db(dbPath);
+
+    fileWork.lock();
+
     db << newDB;
     db.close();
+
+    fileWork.unlock();
+
     logger->newLog("Successfully");
 }
 
-Storage::Storage(const string& filePath, Logger& logger, int docID) {
+Storage::Storage(const string& filePath, Logger& logger, int docID, std::mutex& mtx) : fileWork(mtx) {
     this->docID = std::to_string(docID);
     this->logger = &logger;
     db1Path = ".files/" +std::to_string(docID) + ".db";
@@ -177,8 +186,14 @@ Storage::Storage(const string& filePath, Logger& logger, int docID) {
         }
         else {//if it was changed after last run
             ofstream OfileDB(db1Path);
+
+            fileWork.lock();
+
             OfileDB << fileToString(filePath);
             OfileDB.close();
+
+            fileWork.unlock();
+
             clearDB(this->docID);
             readFile(filePath);
             writeToDB(this->docID);
@@ -186,8 +201,14 @@ Storage::Storage(const string& filePath, Logger& logger, int docID) {
     }
     else {//if file is new
         ofstream OfileDb(db1Path);
+
+        fileWork.lock();
+
         OfileDb << fileToString(filePath);
         OfileDb.close();
+
+        fileWork.unlock();
+
         readFile(filePath);
         writeToDB(this->docID);
     }

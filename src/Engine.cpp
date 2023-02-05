@@ -61,7 +61,7 @@ void Engine::find(bool isUsingRequestsJson, int counter) {
         second_thread.join();
         logger->newLog("Fin working with threads!");
     }else{
-        storages1.emplace_back(new Storage(filesPaths[0], *logger, 0));
+        storages1.emplace_back(new Storage(filesPaths[0], *logger, 0, fileWork));
     }
 
     Searcher searcher(*logger);
@@ -126,7 +126,7 @@ void Engine::work() {
 
 void Engine::giveTask(int pos1, int pos2, vector<Storage*> storage) {
     for (; pos1 < pos2; pos1++) {
-        storage.emplace_back(new Storage(filesPaths[pos1], *logger, pos1));
+        storage.emplace_back(new Storage(filesPaths[pos1], *logger, pos1, fileWork));
     }
     std::stringstream temp;
     temp << std::this_thread::get_id();
