@@ -3,6 +3,6 @@
 
 int main(){
     Logger logger;
-    Engine a(logger);
-    a.work();
+    Engine engine(logger);
+    engine.work();
 }

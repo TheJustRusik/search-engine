@@ -37,7 +37,8 @@ string Storage::fixWord(string word) {
     }
     int i = 0;
     for (auto c : word) {
-        if (c >= 65 and c <= 90)word[i] += 32;
+        if (isupper(c))
+            tolower(word[i]);
         i++;
     }
     return word;
@@ -192,7 +193,7 @@ Storage::Storage(const string& filePath, Logger& logger, int docID) {
     }
 }
 
-[[maybe_unused]] void Storage::print() {
+void Storage::print() {
     std::cout << "Words: \n";
     if (!words.empty()) {
         for (int i = 0; i < words.size(); i++) {

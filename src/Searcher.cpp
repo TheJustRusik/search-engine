@@ -21,7 +21,8 @@ string Searcher::fixWord(string word) {
     }
     int i = 0;
     for (auto c : word) {
-        if (c >= 65 and c <= 90)word[i] += 32;
+        if(isupper(c))
+            tolower(word[i]);
         i++;
     }
     return word;
