@@ -1,0 +1,16 @@
+{//Before starting, just in case, delete the comments in this file
+  "config": {
+    "name": "This_is_engine_name", //Engine's name
+    "version": "This_is_version_of_engine",  //Engine's version
+    "max_responses": 5, //how much responses should be given for your requests
+    "use_requests.json": false //flag for switch between <console request> and <requests.json>
+  },
+  "files": [ //here should be path for files. where search engine will search your requests
+    "C:\\Users\\example.txt",
+    "~/Documents/some_file.txt",
+    "/work/with/any/file/extensions"
+  ],
+  "directories": [
+
+  ]
+}
