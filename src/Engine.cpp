@@ -53,8 +53,17 @@ Engine::Engine(Logger& logger) {
 }
 
 void Engine::find(bool isUsingRequestsJson, int counter) {
-    for (int i = 0; i < filesPaths.size(); i++)
-        storages.push_back(new Storage(filesPaths[i], *logger, i));
+    if(filesPaths.size() > 1){
+        logger->newLog("Working with threads!");
+        std::thread first_thread(&Engine::giveTask, this, 0, filesPaths.size() / 2, storages1);
+        std::thread second_thread(&Engine::giveTask, this, filesPaths.size() / 2, filesPaths.size(), storages2);
+        first_thread.join();
+        second_thread.join();
+        logger->newLog("Fin working with threads!");
+    }else{
+        storages1.emplace_back(new Storage(filesPaths[0], *logger, 0));
+    }
+
     Searcher searcher(*logger);
     Answer answer = searcher.search(searchWords, maxResponses);
     for(int i = 0; i < answer.relArr.size(); i++){
@@ -113,4 +122,13 @@ void Engine::work() {
         cout << endl;
         this->find(false);
     }
+}
+
+void Engine::giveTask(int pos1, int pos2, vector<Storage*> storage) {
+    for (; pos1 < pos2; pos1++) {
+        storage.emplace_back(new Storage(filesPaths[pos1], *logger, pos1));
+    }
+    std::stringstream temp;
+    temp << std::this_thread::get_id();
+    logger->newLog("fin work on thread=" + temp.str());
 }

@@ -11,7 +11,9 @@
 #include "Logger.h"
 
 class Engine {
-    vector<Storage*> storages;
+    vector<Storage*> storages1;
+    vector<Storage*> storages2;
+
     vector<string> filesPaths;
     vector<string> searchWords;
 
@@ -25,6 +27,7 @@ public:
     Engine(Logger& logger);
     void find(bool isUsingRequestsJson, int counter = 0);
     void work();
+    void giveTask(int pos1, int pos2, vector<Storage*> storage);
 
 };
 
