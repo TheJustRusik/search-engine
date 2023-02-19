@@ -92,7 +92,7 @@ void Storage::readFromDB(const string& key) {
             while (true)
             {
                 word.push_back(line[i]);
-                if (line[i + 1] == '~')break;
+                if (line[i + 1] == ' ')break;
                 i++;
             }
             //cout << "readFromFile - checker: word:" << word << " idName:" << idName <<endl;//chekcer
@@ -100,17 +100,17 @@ void Storage::readFromDB(const string& key) {
             {
                 std::string buffStr;
                 int buffInt;
-                i += 2;     //idName~word [w]<-
+                i += 2;     //idName word [w]<-
                 word = "";  //word = idName<---
                 while (true)
                 {
                     word.push_back(line[i]);
-                    if (line[i + 1] == '~')break;
+                    if (line[i + 1] == ' ')break;
                     i++;
                 }
                 buffStr = word;
                 word = "";
-                i += 2;     //idName~word~num [n]<-
+                i += 2;     //idName word num [n]<-
                 while (i < line.size())
                 {
                     word.push_back(line[i]);
@@ -138,7 +138,7 @@ void Storage::writeToDB(const string& key) {
     {
         for (auto & word : words)
         {
-            file << key << '~' << word.word << '~' << word.num << std::endl;
+            file << key << ' ' << word.word << ' ' << word.num << std::endl;
         }
     }
     file.close();

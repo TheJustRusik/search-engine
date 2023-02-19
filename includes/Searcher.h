@@ -25,7 +25,7 @@ class Searcher {
     static string fixWord(string word);
     bool fileExist(const string& file);
     int findFilePos(const string& file);
-    static string parseDbLine(string line, int id, char delim = '~');
+    static string parseDbLine(string line, int id, char delim = ' ');
 public:
     Searcher(Logger& logger);
     Answer search(vector<string> keyWords, int responses);
