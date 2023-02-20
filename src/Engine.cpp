@@ -1,5 +1,35 @@
 #include "../includes/Engine.h"
 
+void Engine::getFilesFromDir(const string &initialDir, vector<string> &result, bool whiteListMode) {
+    if (!std::filesystem::exists(initialDir)) {
+        cerr<<"Directory not found at the specified address!";
+        exit(EXIT_FAILURE);
+    }
+    vector<string> dirs {initialDir};
+    while(not dirs.empty()) {
+        for (const auto &obj: std::filesystem::directory_iterator(dirs[0]))
+            if (std::filesystem::is_directory(obj))
+                dirs.emplace_back(obj.path());
+            else if(not extensions.empty()) {
+                if (whiteListMode and isInExtensions(obj.path().extension()))
+                    result.emplace_back(obj.path());
+                else if ((not whiteListMode) and (not isInExtensions(obj.path().extension())))
+                    result.emplace_back(obj.path());
+            }else
+                result.emplace_back(obj.path());
+
+        dirs.erase(dirs.begin());
+    }
+
+}
+
+bool Engine::isInExtensions(const std::string &word) {
+    for(const auto& ext : extensions)
+        if(ext == word)
+            return true;
+    return false;
+}
+
 Engine::Engine(Logger& logger) {
     this->logger = &logger;
     nlohmann::json config;
@@ -13,14 +43,44 @@ Engine::Engine(Logger& logger) {
     }
     configFile >> config;
 
+    try{
+        dirsPaths = config["directories"];
+    }catch (...){
+        logger.newLog("No directories in conf.json!");
+    }
+    try{
+        extensions = config["extensions"];
+    }catch (...){
+        logger.newLog("No extensions in conf.json");
+    }
+
+
     try {
         filesPaths = config["files"];
-        if(filesPaths.empty())
-            throw std::exception();
     }catch (...){
-        cout<<"ERROR: no files in config!\n";
+        logger.newLog("No files in conf.json!");
+    }
+    if(not dirsPaths.empty()){
+        bool whiteListMode = true;
+        try{
+            if(config["config"]["extensions_mode"] == "whitelist")
+                whiteListMode = true;
+            else
+                whiteListMode = false;
+        }catch (...){
+            logger.newLog("extensions_mode are not exist in conf.json");
+        }
+        for(const auto& path : dirsPaths)
+            getFilesFromDir(path, filesPaths, whiteListMode);
+
+    }
+    if(filesPaths.empty()){
+        cerr<<"There is not a single existing file with which the program could work. "
+              "Check that the data in conf.json ->files && ->directories is correct. Also check "
+              "the latest logs for more information. ";
         exit(EXIT_FAILURE);
     }
+
     try {
         name = config["config"]["name"];
     }catch (...){

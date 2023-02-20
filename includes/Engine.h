@@ -16,9 +16,10 @@ class Engine {
 
     std::mutex fileWork;
 
+    vector<string> dirsPaths;
     vector<string> filesPaths;
     vector<string> searchWords;
-
+    vector<string> extensions;
     nlohmann::json answerJson;
     Logger* logger;
 
@@ -30,7 +31,8 @@ public:
     void find(bool isUsingRequestsJson, int counter = 0);
     void work();
     void giveTask(int pos1, int pos2, vector<Storage*> storage);
-
+    void getFilesFromDir(const string& initialDir, vector<string>& result, bool isWhiteList);
+    bool isInExtensions(const std::string &word);
 };
 
 #endif //SEARCHENGINE_ENGINE_H
