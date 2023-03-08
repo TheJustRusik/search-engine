@@ -1,37 +1,37 @@
-#ifndef SEARCHENGINE_STORAGE_H
-#define SEARCHENGINE_STORAGE_H
+#pragma once
 
 #include "includes.h"
 #include "Logger.h"
+#include <iostream>
+#include <filesystem>
+#include <chrono>
+#include <ctime>
 
-class Storage {
-    string docID;
-    string dbPath = ".files/db.txt";//path for db.txt ("heart" of this program)
-    string db1Path;//path for backup of fileName.txt
+class Storage : public Logger{
+    int docID;
+    string filerPath = ".files/.filesInfo";//path for db.txt ("heart" of this program)
+    string dbPath = ".files/";//path for backup of fileName.txt
     vector<StringAndNum> words;//with this vector our program can represent content of fileName.txt
-    Logger* logger;//object for logging actions of this program. Can tell what is wrong
-
+    vector<tuple<int, string ,time_t>> filesInfo;
     std::mutex& fileWork;
+    time_t fileTimeNow;
+
 
     //basic functions
     bool haveWord(const string& word);
     int findWordNum(const string& word);
     static bool isUsefulWord(const string& word);
     static string fixWord(string word);
-    static string fixLine(string line);
-    static string getFileName(string path);
 
     //important functions with action logging
     void readFile(const string& path);
-    void readFromDB(const string& key);
-    void writeToDB(const string& key);
-    void clearDB(string key);
+    void readDB();
+    void writeToDB(const string& path);
 
+    static time_t getFileTime(const string& path);
 
 public:
-    Storage(const string& filePath, Logger& logger, int docID, std::mutex& mtx);
+    Storage(const string &filePath, time_t fileTime, int id, std::mutex &mtx, vector<tuple<int, string ,time_t>> &filesInfo);
 
-    void print();
 };
 
-#endif //SEARCHENGINE_STORAGE_H

@@ -1,5 +1,6 @@
 #include "../includes/Storage.h"
 
+
 bool Storage::haveWord(const string& word) {
     if (words.empty())return false;
     for (const auto& i : words) {
@@ -31,7 +32,7 @@ bool Storage::isUsefulWord(const string& word) {
 }
 
 string Storage::fixWord(string word) {
-    char badThings[4] = { ',', '.', '-', ':' };
+    char badThings[6] = { ',', '.', '-', ':', '/', '\\' };
     for (auto c : badThings) {
         if (word[word.size() - 1] == c)word.pop_back();
     }
@@ -41,28 +42,8 @@ string Storage::fixWord(string word) {
     return word;
 }
 
-string Storage::fixLine(string line) {
-    string buff = line;
-    while (line[buff.size() - 1] == ' ') {
-        buff.pop_back();
-    }
-    return buff;
-}
-
-string Storage::getFileName(string path) {
-    int lastSlPos = 0;
-    for (int i = 0; i < path.size(); i++)
-        if (path[i] == '\\')
-            lastSlPos = i + 1;
-    string name;
-    for (; lastSlPos < path.size(); lastSlPos++) {
-        name.push_back(path[lastSlPos]);
-    }
-    return name;
-}
-
 void Storage::readFile(const string& path) {//read words and their num directly from file (slow)
-    logger->newLog("Start Reading From File...");
+    newLog("Start Reading From File...");
     std::string text, word;
     text = fileToString(path);
     while (getWord(text, word)) {
@@ -76,149 +57,67 @@ void Storage::readFile(const string& path) {//read words and their num directly 
             }
         }
     }
-    logger->newLog("Successfully");
+    newLog("Successfully");
 }
 
-void Storage::readFromDB(const string& key) {
-    logger->newLog("Start Reading From DataBase");
-    std::ifstream file(dbPath);
-    if (file.is_open())
-    {
-        std::string line, word;
-        while (getline(file, line))
-        {
-            //word = line;    //для безопастности
-            int i = 0;
-            while (true)
-            {
-                word.push_back(line[i]);
-                if (line[i + 1] == ' ')break;
-                i++;
-            }
-            //cout << "readFromFile - checker: word:" << word << " idName:" << idName <<endl;//chekcer
-            if (word == key)
-            {
-                std::string buffStr;
-                int buffInt;
-                i += 2;     //idName word [w]<-
-                word = "";  //word = idName<---
-                while (true)
-                {
-                    word.push_back(line[i]);
-                    if (line[i + 1] == ' ')break;
-                    i++;
-                }
-                buffStr = word;
-                word = "";
-                i += 2;     //idName word num [n]<-
-                while (i < line.size())
-                {
-                    word.push_back(line[i]);
-                    i++;
-                }
-                buffInt = stoi(word);
-                word = "";
-                words.push_back({ buffStr, buffInt });
-            }
-            word = ""; line = "";
-        }
-        logger->newLog("Successfully");
-        return;
-    }
-    logger->newLog("File: " + dbPath + " adbsent...");
-}
+void Storage::readDB() {
+    newLog("Start Reading From DataBase, id: " + std::to_string(docID));
+    ifstream dbFile(dbPath, std::ios::binary);
 
-void Storage::writeToDB(const string& key) {
-    logger->newLog("Writing to DataBase...");
-    std::ofstream file(dbPath, std::ios_base::app);
-
-    fileWork.lock();
-
-    if (!words.empty())
-    {
-        for (auto & word : words)
-        {
-            file << key << ' ' << word.word << ' ' << word.num << std::endl;
-        }
-    }
-    file.close();
-
-    fileWork.unlock();
-
-    logger->newLog("Successfully");
-}
-
-void Storage::clearDB(string key) {//if some file's data was changed, means that the information about this file in the database is out of date and needs to be cleared
-    logger->newLog("Clearing DataBase lines with key - \"" + key + "\"...");
-    ifstream oldDB(dbPath);
-    string line, newDB;
-    while (getline(oldDB, line)) {
-        bool safeLine = true;
-        for (int i = 0; i < key.size(); i++)
-            if (key[i] != line[i]) {
-                safeLine = false;
+    if (dbFile) {
+        while (true) {
+            StringAndNum word;
+            dbFile.read(reinterpret_cast<char*>(&word.num), sizeof(word.num));
+            if (!dbFile)
                 break;
-            }
-        if (safeLine) {
-            newDB += line + '\n';
+            size_t len;
+            dbFile.read(reinterpret_cast<char*>(&len), sizeof(len));
+            word.word.resize(len);
+            dbFile.read(word.word.data(), len);
+            words.emplace_back(word);
         }
+        dbFile.close();
     }
-    ofstream db(dbPath);
-
-    fileWork.lock();
-
-    db << newDB;
-    db.close();
-
-    fileWork.unlock();
-
-    logger->newLog("Successfully");
+    newLog("Successful", 2);
 }
 
-Storage::Storage(const string& filePath, Logger& logger, int docID, std::mutex& mtx) : fileWork(mtx) {
-    this->docID = std::to_string(docID);
-    this->logger = &logger;
-    db1Path = ".files/" +std::to_string(docID) + ".db";
-    ifstream IfileDb(db1Path);
-    if (IfileDb.is_open()) {//if file is not new
-        if (fileToString(db1Path) == fileToString(filePath)) {//if file is not changed after last run this program
-            readFromDB(this->docID);
+void Storage::writeToDB(const string& path) {
+    newLog("Writing to DataBase file, id: " + std::to_string(docID));
+    ofstream dbFile(dbPath, std::ios::binary);
+
+    get<1>(filesInfo[docID]) = path;
+    get<2>(filesInfo[docID]) = fileTimeNow;
+
+    if (dbFile) {
+        for (const auto& word : words) {
+            dbFile.write(reinterpret_cast<const char*>(&word.num), sizeof(word.num));
+            size_t len = word.word.length();
+            dbFile.write(reinterpret_cast<const char*>(&len), sizeof(len));
+            dbFile.write(word.word.data(), len);
         }
-        else {//if it was changed after last run
-            ofstream OfileDB(db1Path);
-
-            fileWork.lock();
-
-            OfileDB << fileToString(filePath);
-            OfileDB.close();
-
-            fileWork.unlock();
-
-            clearDB(this->docID);
-            readFile(filePath);
-            writeToDB(this->docID);
-        }
+        dbFile.close();
     }
-    else {//if file is new
-        ofstream OfileDb(db1Path);
+    newLog("Successful", 2);
+}
 
-        fileWork.lock();
-
-        OfileDb << fileToString(filePath);
-        OfileDb.close();
-
-        fileWork.unlock();
-
+Storage::Storage(const string &filePath, time_t fileTime, int id, std::mutex &mtx, vector<tuple<int, string ,time_t>> &filesInfo) : fileWork(mtx),
+                                                                                                                                    docID(id),
+                                                                                                                                    filesInfo(filesInfo)
+{
+    fileTimeNow = getFileTime(filePath);
+    if(fileTime == fileTimeNow){
+        readDB();
+    }else{
         readFile(filePath);
-        writeToDB(this->docID);
+        writeToDB(filePath);
     }
+
 }
 
-void Storage::print() {
-    std::cout << "Words: \n";
-    if (!words.empty()) {
-        for (int i = 0; i < words.size(); i++) {
-            std::cout << "Word: " << words[i].word << " Num: " << words[i].num << std::endl;
-        }
-    }
+time_t Storage::getFileTime(const string& path) {
+    return std::chrono::system_clock::to_time_t(
+            std::chrono::file_clock::to_sys(
+                    std::filesystem::last_write_time(path)
+            )
+    );
 }

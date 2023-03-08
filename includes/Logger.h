@@ -9,8 +9,9 @@
 class Logger {
     string path;
 public:
-    explicit Logger(string path = "");
-    ~Logger();
-    void newLog(const string& message);
+    Logger(string path = "");
+    void newLog(const string& message, short level = 1);
+    void startLog();
+    void endLog();
 };
 #endif //SEARCHENGINE_LOGGER_H

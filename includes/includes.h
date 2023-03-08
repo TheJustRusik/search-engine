@@ -1,7 +1,3 @@
-//
-// Created by TheJustRusik on 13.01.2023.
-//
-
 #ifndef SEARCHENGINE_INCLUDES_H
 #define SEARCHENGINE_INCLUDES_H
 
@@ -15,7 +11,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <thread>
-#include <filesystem>
+#include <ctime>
 
 using std::cout;
 using std::cerr;
@@ -25,6 +21,8 @@ using std::vector;
 using std::endl;
 using std::ofstream;
 using std::ifstream;
+using std::tuple;
+using std::pair;
 
 using json = nlohmann::json;
 
@@ -41,4 +39,4 @@ struct Answer{
 string fileToString(const string& path);
 bool getWord(string& line, string& word, char delim1 = ' ', char delim2 = '\n');
 
-#endif //SEARCHENGINE_INCLUDES_H
+#endif
