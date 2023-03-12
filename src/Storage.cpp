@@ -43,7 +43,10 @@ string Storage::fixWord(string word) {
 }
 
 void Storage::readFile(const string& path) {//read words and their num directly from file (slow)
-    newLog("Start Reading From File...");
+    fileWork.lock();
+    newLog("Start Reading From File...", 2);
+    fileWork.unlock();
+
     std::string text, word;
     text = fileToString(path);
     while (getWord(text, word)) {
@@ -57,11 +60,18 @@ void Storage::readFile(const string& path) {//read words and their num directly 
             }
         }
     }
-    newLog("Successfully");
+
+    fileWork.lock();
+    newLog("Successfully", 2);
+    fileWork.unlock();
 }
 
 void Storage::readDB() {
-    newLog("Start Reading From DataBase, id: " + std::to_string(docID));
+
+    fileWork.lock();
+    newLog("Start Reading From DataBase, id: " + std::to_string(docID), 2);
+    fileWork.unlock();
+
     ifstream dbFile(dbPath, std::ios::binary);
 
     if (dbFile) {
@@ -78,13 +88,19 @@ void Storage::readDB() {
         }
         dbFile.close();
     }
+    fileWork.lock();
     newLog("Successful", 2);
+    fileWork.unlock();
 }
 
 void Storage::writeToDB(const string& path) {
-    newLog("Writing to DataBase file, id: " + std::to_string(docID));
+    fileWork.lock();
+    newLog("Writing to DataBase file, id: " + std::to_string(docID), 2);
+    fileWork.unlock();
+
     ofstream dbFile(dbPath, std::ios::binary);
 
+    get<0>(filesInfo[docID]) = docID;
     get<1>(filesInfo[docID]) = path;
     get<2>(filesInfo[docID]) = fileTimeNow;
 
@@ -97,13 +113,16 @@ void Storage::writeToDB(const string& path) {
         }
         dbFile.close();
     }
+    fileWork.lock();
     newLog("Successful", 2);
+    fileWork.unlock();
 }
 
 Storage::Storage(const string &filePath, time_t fileTime, int id, std::mutex &mtx, vector<tuple<int, string ,time_t>> &filesInfo) : fileWork(mtx),
                                                                                                                                     docID(id),
                                                                                                                                     filesInfo(filesInfo)
 {
+    dbPath += std::to_string(id) + ".db";
     fileTimeNow = getFileTime(filePath);
     if(fileTime == fileTimeNow){
         readDB();
@@ -120,4 +139,16 @@ time_t Storage::getFileTime(const string& path) {
                     std::filesystem::last_write_time(path)
             )
     );
+}
+
+int Storage::findWords(const vector<string>& word) {
+    int coincidences = 0;
+
+    for(const auto& wordNum : words){
+        for(const auto& w : word)
+            if(w == wordNum.word)
+                coincidences += wordNum.num;
+    }
+
+    return coincidences;
 }

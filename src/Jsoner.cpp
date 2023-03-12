@@ -81,7 +81,6 @@ Jsoner::Jsoner() {
     }
 
     if(not dirsPaths.empty()){
-        extIsWhiteList = true;
         try{
             if(config["config"]["extensions_mode"] == "whitelist")
                 extIsWhiteList = true;
@@ -111,13 +110,13 @@ Jsoner::Jsoner() {
     cout << "Search engine ready to work\n";
 
     //READING OR MAKING filesInfo.json
-    ifstream filesInfoFile("/.files/filesInfo.json");
+    ifstream filesInfoFile(".files/filesInfo.json");
     if(filesInfoFile.is_open()){
         json filesInfoJson;
         filesInfoFile >> filesInfoJson;
         filesInfo = filesInfoJson["FilesInfo"];
     }else{
-        ofstream createFilesInfo("/.files/filesInfo.json");
+        ofstream createFilesInfo(".files/filesInfo.json");
         createFilesInfo.close();
     }
 }

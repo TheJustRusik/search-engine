@@ -9,10 +9,9 @@
 
 class Storage : public Logger{
     int docID;
-    string filerPath = ".files/.filesInfo";//path for db.txt ("heart" of this program)
     string dbPath = ".files/";//path for backup of fileName.txt
     vector<StringAndNum> words;//with this vector our program can represent content of fileName.txt
-    vector<tuple<int, string ,time_t>> filesInfo;
+    vector<tuple<int, string ,time_t>>& filesInfo;
     std::mutex& fileWork;
     time_t fileTimeNow;
 
@@ -28,10 +27,11 @@ class Storage : public Logger{
     void readDB();
     void writeToDB(const string& path);
 
+
     static time_t getFileTime(const string& path);
 
 public:
     Storage(const string &filePath, time_t fileTime, int id, std::mutex &mtx, vector<tuple<int, string ,time_t>> &filesInfo);
-
+    int findWords(const vector<string>& word);
 };
 

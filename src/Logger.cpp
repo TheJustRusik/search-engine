@@ -28,6 +28,6 @@ void Logger::startLog() {
 
 void Logger::endLog() {
     ofstream logs(path, std::ios_base::app);
-    logs << "End of logs.";
+    logs << "End of logs.\n";
     logs.close();
 }

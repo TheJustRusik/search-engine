@@ -1,5 +1,4 @@
-#ifndef SEARCHENGINE_INCLUDES_H
-#define SEARCHENGINE_INCLUDES_H
+#pragma once
 
 #include <nlohmann/json.hpp>
 #include <iostream>
@@ -12,6 +11,11 @@
 #include <filesystem>
 #include <thread>
 #include <ctime>
+#include <iomanip>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 using std::cout;
 using std::cerr;
@@ -23,7 +27,6 @@ using std::ofstream;
 using std::ifstream;
 using std::tuple;
 using std::pair;
-
 using json = nlohmann::json;
 
 struct StringAndNum {
@@ -31,12 +34,6 @@ struct StringAndNum {
     int num;
 };
 
-struct Answer{
-    vector<int> docIdArr;
-    vector<float> relArr;
-};
-
 string fileToString(const string& path);
 bool getWord(string& line, string& word, char delim1 = ' ', char delim2 = '\n');
 
-#endif

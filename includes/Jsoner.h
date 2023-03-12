@@ -1,5 +1,5 @@
-#ifndef SEARCHENGINE_JSONER_H
-#define SEARCHENGINE_JSONER_H
+#pragma once
+
 #include "includes.h"
 #include "Logger.h"
 
@@ -24,5 +24,3 @@ public:
     Jsoner();
 };
 
-
-#endif //SEARCHENGINE_JSONER_H

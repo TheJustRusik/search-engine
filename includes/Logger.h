@@ -1,9 +1,5 @@
-//
-// Created by TheJustRusik on 13.01.2023.
-//
+#pragma once
 
-#ifndef SEARCHENGINE_LOGGER_H
-#define SEARCHENGINE_LOGGER_H
 #include "includes.h"
 
 class Logger {
@@ -14,4 +10,3 @@ public:
     void startLog();
     void endLog();
 };
-#endif //SEARCHENGINE_LOGGER_H
