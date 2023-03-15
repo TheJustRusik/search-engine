@@ -33,5 +33,6 @@ class Storage : public Logger{
 public:
     Storage(const string &filePath, time_t fileTime, int id, std::mutex &mtx, vector<tuple<int, string ,time_t>> &filesInfo);
     int findWords(const vector<string>& word);
+    int getDocID() const;
 };
 

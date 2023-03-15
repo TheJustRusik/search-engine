@@ -152,3 +152,7 @@ int Storage::findWords(const vector<string>& word) {
 
     return coincidences;
 }
+
+int Storage::getDocID() const {
+    return docID;
+}

@@ -1,3 +1,4 @@
+#include <bitset>
 #include "../includes/Engine.h"
 
 Engine::Engine() {
@@ -64,12 +65,20 @@ void Engine::findWords() {
     vector<pair<int, int>> result; //result[0] = a|b means file with id a have b overlaps
 
     if (not useReqJson) {
+
         searchWords.resize(1);
         cout << "Enter the words to be found separated by a space, press enter to stop: \n";
         string temp;
         while (cin >> temp) {
             if (cin.peek() == '\n')
                 cin.clear(std::ios::eofbit);
+
+
+            for (char i : temp)
+                std::cout << std::bitset<8>(i) << ' ';
+            cout<<endl;
+// run   = 10101011 10101110 10101011
+// debug = 11010000 10111011 11010000 10111110 11010000 10111011
             searchWords[0].push_back(temp);
         }
 
@@ -78,8 +87,8 @@ void Engine::findWords() {
             cout << word << ' ';
         cout << endl;
 
-        for (int i = 0; i < storages.size(); i++)
-            result.emplace_back(i, storages[i]->findWords(searchWords[0]));
+        for (auto & storage : storages)
+            result.emplace_back(storage->getDocID(), storage->findWords(searchWords[0]));
 
 
         sort(result.begin(), result.end(),

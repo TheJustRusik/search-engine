@@ -1,5 +1,7 @@
 #pragma once
 
+#define UNICODE
+
 #include <nlohmann/json.hpp>
 #include <iostream>
 #include <fstream>
@@ -12,6 +14,8 @@
 #include <thread>
 #include <ctime>
 #include <iomanip>
+#include <locale>
+#include <codecvt>
 
 #ifdef _WIN32
 #include <windows.h>
