@@ -1,4 +1,3 @@
-#include <bitset>
 #include "../includes/Engine.h"
 
 Engine::Engine() {
@@ -28,6 +27,9 @@ void Engine::fillStorages() {
         id++;
     }
 
+    currLoading = 0;
+    maxLoading = filesPaths.size();
+
     for (auto pathForThread: pathsForThreads)
         threads.emplace_back(&Engine::threadFill, this, pathForThread);
 
@@ -56,6 +58,11 @@ void Engine::threadFill(const vector<pair<string, int>>& path) {
             }
 
         storages.push_back(new Storage(p.first, t, p.second, fileWork, filesInfo));
+
+        fileWork.lock();
+        ++currLoading;
+        cout<<"Loading files: "<<currLoading<<"/"<<maxLoading<<"...\n";
+        fileWork.unlock();
     }
 }
 
@@ -72,13 +79,6 @@ void Engine::findWords() {
         while (cin >> temp) {
             if (cin.peek() == '\n')
                 cin.clear(std::ios::eofbit);
-
-
-            for (char i : temp)
-                std::cout << std::bitset<8>(i) << ' ';
-            cout<<endl;
-// run   = 10101011 10101110 10101011
-// debug = 11010000 10111011 11010000 10111110 11010000 10111011
             searchWords[0].push_back(temp);
         }
 
@@ -98,9 +98,11 @@ void Engine::findWords() {
 
         cout << "Search result (Top - " << maxResponses << "):\n";
         for (int i = 0; i < result.size(); i++) {
-            cout << "#" << i + 1 << " Score: " << std::fixed << std::setprecision(5)
-                 << static_cast<double>(result[i].second) / static_cast<double>(result[0].second) << ", File: "
-                 << get<1>(filesInfo[result[i].first]) << "\n";
+            if(result[i].second != 0) {
+                cout << "#" << i + 1 << " Score: " << std::fixed << std::setprecision(5)
+                     << static_cast<double>(result[i].second) / static_cast<double>(result[0].second) << ", File: "
+                     << get<1>(filesInfo[result[i].first]) << "\n";
+            }
         }
     } else {
         std::ofstream answerFile("answer.json");
@@ -125,11 +127,14 @@ void Engine::findWords() {
 
             cout << "Search result (Top - " << maxResponses << "):\n";
             for (int i = 0; i < result.size(); i++) {
-                answer["request_" + std::to_string(iter)]["#" + std::to_string(i + 1)] = {
-                        static_cast<double>(result[i].second) / result[0].second, get<1>(filesInfo[result[i].first])};
-                cout << "#" << i + 1 << " Score: " << std::fixed << std::setprecision(5)
-                     << static_cast<double>(result[i].second) / static_cast<double>(result[0].second) << ", File: "
-                     << get<1>(filesInfo[result[i].first]) << "\n";
+                if(result[i].second != 0) {
+                    answer["request_" + std::to_string(iter)]["#" + std::to_string(i + 1)] = {
+                            static_cast<double>(result[i].second) / result[0].second,
+                            get<1>(filesInfo[result[i].first])};
+                    cout << "#" << i + 1 << " Score: " << std::fixed << std::setprecision(5)
+                         << static_cast<double>(result[i].second) / static_cast<double>(result[0].second) << ", File: "
+                         << get<1>(filesInfo[result[i].first]) << "\n";
+                }
             }
 
 

@@ -6,6 +6,10 @@
 #include "Jsoner.h"
 
 class Engine : public Jsoner {
+    int maxLoading;
+    int currLoading;
+
+
     vector<Storage *> storages;
     vector<std::thread> threads;
     std::mutex fileWork;
