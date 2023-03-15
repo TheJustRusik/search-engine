@@ -1,190 +1,150 @@
+#include <bitset>
 #include "../includes/Engine.h"
 
-void Engine::getFilesFromDir(const string &initialDir, vector<string> &result, bool whiteListMode) {
-    if (!std::filesystem::exists(initialDir)) {
-        cerr<<"Directory not found at the specified address!";
-        exit(EXIT_FAILURE);
-    }
-    vector<string> dirs {initialDir};
-    while(not dirs.empty()) {
-        for (const auto &obj: std::filesystem::directory_iterator(dirs[0]))
-            if (std::filesystem::is_directory(obj))
-                dirs.emplace_back(obj.path());
-            else if(not extensions.empty()) {
-                if (whiteListMode and isInExtensions(obj.path().extension()))
-                    result.emplace_back(obj.path());
-                else if ((not whiteListMode) and (not isInExtensions(obj.path().extension())))
-                    result.emplace_back(obj.path());
-            }else
-                result.emplace_back(obj.path());
+Engine::Engine() {
+    filesInfo.resize(filesPaths.size());
+    fillStorages();
 
-        dirs.erase(dirs.begin());
-    }
+    cout << "░██████╗███████╗░█████╗░██████╗░░█████╗░██╗░░██╗  ███████╗███╗░░██╗░██████╗░██╗███╗░░██╗███████╗\n";
+    cout << "██╔════╝██╔════╝██╔══██╗██╔══██╗██╔══██╗██║░░██║  ██╔════╝████╗░██║██╔════╝░██║████╗░██║██╔════╝\n";
+    cout << "╚█████╗░█████╗░░███████║██████╔╝██║░░╚═╝███████║  █████╗░░██╔██╗██║██║░░██╗░██║██╔██╗██║█████╗░░\n";
+    cout << "░╚═══██╗██╔══╝░░██╔══██║██╔══██╗██║░░██╗██╔══██║  ██╔══╝░░██║╚████║██║░░╚██╗██║██║╚████║██╔══╝░░\n";
+    cout << "██████╔╝███████╗██║░░██║██║░░██║╚█████╔╝██║░░██║  ███████╗██║░╚███║╚██████╔╝██║██║░╚███║███████╗\n";
+    cout << "╚═════╝░╚══════╝╚═╝░░╚═╝╚═╝░░╚═╝░╚════╝░╚═╝░░╚═╝  ╚══════╝╚═╝░░╚══╝░╚═════╝░╚═╝╚═╝░░╚══╝╚══════╝\n";
 
 }
 
-bool Engine::isInExtensions(const std::string &word) {
-    for(const auto& ext : extensions)
-        if(ext == word)
-            return true;
-    return false;
+void Engine::fillStorages() {
+    newLog("Filling Storages [threads: " + std::to_string(threadsNum) + "; files: " +
+           std::to_string(filesPaths.size()) + "]", 1);
+
+    vector<vector<pair<string, int>>> pathsForThreads;
+    pathsForThreads.resize(threadsNum);
+
+    int iter = 0, id = 0;
+    for (const auto &path: filesPaths) {
+        pathsForThreads[iter].emplace_back(path, id);
+        iter = iter + 1 < threadsNum ? iter + 1 : 0;
+        id++;
+    }
+
+    for (auto pathForThread: pathsForThreads)
+        threads.emplace_back(&Engine::threadFill, this, pathForThread);
+
+    for (auto &th: threads)
+        if (th.joinable())
+            th.join();
+
+
+    ofstream filesInfoFile(".files/filesInfo.json");
+    json filesInfoJson;
+    filesInfoJson["FilesInfo"] = filesInfo;
+    filesInfoFile << filesInfoJson;
+    filesInfoFile.close();
+
+    threads.clear();
+    newLog("Successfully", 1);
 }
 
-Engine::Engine(Logger& logger) {
-    this->logger = &logger;
-    nlohmann::json config;
-    ifstream configFile("conf.json");
-    try {
-        if (not configFile.is_open())
-            throw std::exception();
-    }catch (...){
-        cout<<"ERROR: no config file aka \"conf.json\"!\n";
-        exit(EXIT_FAILURE);
-    }
-    configFile >> config;
+void Engine::threadFill(const vector<pair<string, int>>& path) {
+    for (const auto &p: path) {
+        time_t t = -1;
+        for (auto fileInfo: filesInfo)
+            if (get<1>(fileInfo) == p.first) {
+                t = get<2>(fileInfo);
+                break;
+            }
 
-    try{
-        dirsPaths = config["directories"];
-    }catch (...){
-        logger.newLog("No directories in conf.json!");
-    }
-    try{
-        extensions = config["extensions"];
-    }catch (...){
-        logger.newLog("No extensions in conf.json");
-    }
-
-
-    try {
-        filesPaths = config["files"];
-    }catch (...){
-        logger.newLog("No files in conf.json!");
-    }
-    if(not dirsPaths.empty()){
-        bool whiteListMode = true;
-        try{
-            if(config["config"]["extensions_mode"] == "whitelist")
-                whiteListMode = true;
-            else
-                whiteListMode = false;
-        }catch (...){
-            logger.newLog("extensions_mode are not exist in conf.json");
-        }
-        for(const auto& path : dirsPaths)
-            getFilesFromDir(path, filesPaths, whiteListMode);
-
-    }
-    if(filesPaths.empty()){
-        cerr<<"There is not a single existing file with which the program could work. "
-              "Check that the data in conf.json ->files && ->directories is correct. Also check "
-              "the latest logs for more information. ";
-        exit(EXIT_FAILURE);
-    }
-
-    try {
-        name = config["config"]["name"];
-    }catch (...){
-        cout<<"ERROR: no name in config!\n";
-        exit(EXIT_FAILURE);
-    }
-    try{
-        version = config["config"]["version"];
-    }catch (...){
-        cout<<"ERROR: no version in config!\n";
-        exit(EXIT_FAILURE);
-    }
-    try{
-        maxResponses = config["config"]["max_responses"];
-    }catch (...){
-        cout<<"WARN: no max_responses in config! Default value will be 5.\n";
-        maxResponses = 5;
-    }
-
-
-    cout << "Search engine by TheJustRusik\n";
-    cout << name << " config version: " << version << '\n';
-    cout << "File's list: \n";
-    for (const auto& i : filesPaths)
-        cout << i << endl;
-}
-
-void Engine::find(bool isUsingRequestsJson, int counter) {
-    if(filesPaths.size() > 1){
-        logger->newLog("Working with threads!");
-        std::thread first_thread(&Engine::giveTask, this, 0, filesPaths.size() / 2, storages1);
-        std::thread second_thread(&Engine::giveTask, this, filesPaths.size() / 2, filesPaths.size(), storages2);
-        first_thread.join();
-        second_thread.join();
-        logger->newLog("Fin working with threads!");
-    }else{
-        storages1.emplace_back(new Storage(filesPaths[0], *logger, 0, fileWork));
-    }
-
-    Searcher searcher(*logger);
-    Answer answer = searcher.search(searchWords, maxResponses);
-    for(int i = 0; i < answer.relArr.size(); i++){
-        cout<<"Score (0-worst/1-best): "<<answer.relArr[i]<<" File: "<<filesPaths[answer.docIdArr[i]]<<endl;
-    }
-    if(isUsingRequestsJson) {
-        for(int i = 0; i < answer.relArr.size(); i++){
-            answerJson["answer"]["request_" + std::to_string(counter)]["Top-" + std::to_string(i + 1)]["file"] = filesPaths[answer.docIdArr[i]];
-            answerJson["answer"]["request_" + std::to_string(counter)]["Top-" + std::to_string(i + 1)]["rel"] = answer.relArr[i];
-        }
+        storages.push_back(new Storage(p.first, t, p.second, fileWork, filesInfo));
     }
 }
 
-void Engine::work() {
-    nlohmann::json config;
-    ifstream configFile("conf.json");
-    configFile >> config;
+void Engine::findWords() {
+    threads.clear();
 
-    if (config["config"]["use_requests.json"]) {
-        string reqPath = "requests.json";
-        ifstream reqFile(reqPath);
-        nlohmann::json req;
-        reqFile >> req;
-        vector<string> tempLines = req["requests"];
+    vector<pair<int, int>> result; //result[0] = a|b means file with id a have b overlaps
 
-        int c = 1;
+    if (not useReqJson) {
 
-        for(auto i : tempLines) {
-            string tempWord;
-            while (getWord(i, tempWord))
-                searchWords.emplace_back(tempWord);
-            cout << "Words to search:\n";
-            for (const auto& j : searchWords)
-                cout << j << ' ';
-            cout<<endl;
-            this->find(true, c);
-            searchWords.clear();
-            c++;
-        }
-        string answerPath = "answer.json";
-        ofstream answerFile(answerPath);
-        answerFile << answerJson;
-        answerFile.close();
-    }
-    else {
+        searchWords.resize(1);
         cout << "Enter the words to be found separated by a space, press enter to stop: \n";
         string temp;
         while (cin >> temp) {
             if (cin.peek() == '\n')
                 cin.clear(std::ios::eofbit);
-            searchWords.push_back(temp);
+
+
+            for (char i : temp)
+                std::cout << std::bitset<8>(i) << ' ';
+            cout<<endl;
+// run   = 10101011 10101110 10101011
+// debug = 11010000 10111011 11010000 10111110 11010000 10111011
+            searchWords[0].push_back(temp);
         }
+
         cout << "Words to search:\n";
-        for (const auto& i : searchWords)
-            cout << i << ' ';
+        for (const auto &word: searchWords[0])
+            cout << word << ' ';
         cout << endl;
-        this->find(false);
+
+        for (auto & storage : storages)
+            result.emplace_back(storage->getDocID(), storage->findWords(searchWords[0]));
+
+
+        sort(result.begin(), result.end(),
+             [](pair<int, int> a, pair<int, int> b) -> bool { return a.second > b.second; });
+        if (result.size() > maxResponses)
+            result.resize(maxResponses);
+
+        cout << "Search result (Top - " << maxResponses << "):\n";
+        for (int i = 0; i < result.size(); i++) {
+            cout << "#" << i + 1 << " Score: " << std::fixed << std::setprecision(5)
+                 << static_cast<double>(result[i].second) / static_cast<double>(result[0].second) << ", File: "
+                 << get<1>(filesInfo[result[i].first]) << "\n";
+        }
+    } else {
+        std::ofstream answerFile("answer.json");
+        json answer;
+
+        int iter = 1;
+        for (const auto &request: searchWords) {
+            cout << "Words to search:\n";
+            for (const auto &word: request)
+                cout << word << ' ';
+            cout << endl;
+
+            for (int i = 0; i < storages.size(); i++)
+                result.emplace_back(i, storages[i]->findWords(request));
+
+
+            sort(result.begin(), result.end(),
+                 [](pair<int, int> a, pair<int, int> b) -> bool { return a.second > b.second; });
+
+            if (result.size() > maxResponses)
+                result.resize(maxResponses);
+
+            cout << "Search result (Top - " << maxResponses << "):\n";
+            for (int i = 0; i < result.size(); i++) {
+                answer["request_" + std::to_string(iter)]["#" + std::to_string(i + 1)] = {
+                        static_cast<double>(result[i].second) / result[0].second, get<1>(filesInfo[result[i].first])};
+                cout << "#" << i + 1 << " Score: " << std::fixed << std::setprecision(5)
+                     << static_cast<double>(result[i].second) / static_cast<double>(result[0].second) << ", File: "
+                     << get<1>(filesInfo[result[i].first]) << "\n";
+            }
+
+
+            result.clear();
+            iter++;
+        }
+        answerFile << answer;
+        answerFile.close();
     }
 }
 
-void Engine::giveTask(int pos1, int pos2, vector<Storage*> storage) {
-    for (; pos1 < pos2; pos1++) {
-        storage.emplace_back(new Storage(filesPaths[pos1], *logger, pos1, fileWork));
-    }
-    std::stringstream temp;
-    temp << std::this_thread::get_id();
-    logger->newLog("fin work on thread=" + temp.str());
+void Engine::threadFind() {
+    //TO-DO: multithreading search
+}
+
+Engine::~Engine() {
+    endLog();
 }
