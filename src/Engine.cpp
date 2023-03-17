@@ -4,12 +4,12 @@ Engine::Engine() {
     filesInfo.resize(filesPaths.size());
     fillStorages();
 
-    cout << "░██████╗███████╗░█████╗░██████╗░░█████╗░██╗░░██╗  ███████╗███╗░░██╗░██████╗░██╗███╗░░██╗███████╗\n";
-    cout << "██╔════╝██╔════╝██╔══██╗██╔══██╗██╔══██╗██║░░██║  ██╔════╝████╗░██║██╔════╝░██║████╗░██║██╔════╝\n";
-    cout << "╚█████╗░█████╗░░███████║██████╔╝██║░░╚═╝███████║  █████╗░░██╔██╗██║██║░░██╗░██║██╔██╗██║█████╗░░\n";
-    cout << "░╚═══██╗██╔══╝░░██╔══██║██╔══██╗██║░░██╗██╔══██║  ██╔══╝░░██║╚████║██║░░╚██╗██║██║╚████║██╔══╝░░\n";
-    cout << "██████╔╝███████╗██║░░██║██║░░██║╚█████╔╝██║░░██║  ███████╗██║░╚███║╚██████╔╝██║██║░╚███║███████╗\n";
-    cout << "╚═════╝░╚══════╝╚═╝░░╚═╝╚═╝░░╚═╝░╚════╝░╚═╝░░╚═╝  ╚══════╝╚═╝░░╚══╝░╚═════╝░╚═╝╚═╝░░╚══╝╚══════╝\n";
+    cout << " ██████╗███████╗ █████╗ ██████╗  █████╗ ██╗  ██╗  ███████╗███╗  ██╗ ██████╗ ██╗███╗  ██╗███████╗\n";
+    cout << "██╔════╝██╔════╝██╔══██╗██╔══██╗██╔══██╗██║  ██║  ██╔════╝████╗ ██║██╔════╝ ██║████╗ ██║██╔════╝\n";
+    cout << "╚█████╗ █████╗  ███████║██████╔╝██║  ╚═╝███████║  █████╗  ██╔██╗██║██║  ██╗ ██║██╔██╗██║█████╗  \n";
+    cout << " ╚═══██╗██╔══╝  ██╔══██║██╔══██╗██║  ██╗██╔══██║  ██╔══╝  ██║╚████║██║  ╚██╗██║██║╚████║██╔══╝  \n";
+    cout << "██████╔╝███████╗██║  ██║██║  ██║╚█████╔╝██║  ██║  ███████╗██║ ╚███║╚██████╔╝██║██║ ╚███║███████╗\n";
+    cout << "╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚════╝ ╚═╝  ╚═╝  ╚══════╝╚═╝  ╚══╝ ╚═════╝ ╚═╝╚═╝  ╚══╝╚══════╝\n";
 
 }
 
@@ -61,7 +61,7 @@ void Engine::threadFill(const vector<pair<string, int>>& path) {
 
         fileWork.lock();
         ++currLoading;
-        cout<<"Loading files: "<<currLoading<<"/"<<maxLoading<<"...\n";
+        cout << "Loading files: " << currLoading << "/" << maxLoading << "...\n";
         fileWork.unlock();
     }
 }
@@ -87,7 +87,7 @@ void Engine::findWords() {
             cout << word << ' ';
         cout << endl;
 
-        for (auto & storage : storages)
+        for (auto &storage: storages)
             result.emplace_back(storage->getDocID(), storage->findWords(searchWords[0]));
 
 
@@ -95,13 +95,16 @@ void Engine::findWords() {
              [](pair<int, int> a, pair<int, int> b) -> bool { return a.second > b.second; });
         if (result.size() > maxResponses)
             result.resize(maxResponses);
-
-        cout << "Search result (Top - " << maxResponses << "):\n";
-        for (int i = 0; i < result.size(); i++) {
-            if(result[i].second != 0) {
-                cout << "#" << i + 1 << " Score: " << std::fixed << std::setprecision(5)
-                     << static_cast<double>(result[i].second) / static_cast<double>(result[0].second) << ", File: "
-                     << get<1>(filesInfo[result[i].first]) << "\n";
+        if(result[0].second == 0){
+            cout<<"No match found :(\n";
+        }else {
+            cout << "Search result (Top - " << maxResponses << "):\n";
+            for (int i = 0; i < result.size(); i++) {
+                if (result[i].second != 0) {
+                    cout << "#" << i + 1 << " Score: " << std::fixed << std::setprecision(5)
+                         << static_cast<double>(result[i].second) / static_cast<double>(result[0].second) << ", File: "
+                         << get<1>(filesInfo[result[i].first]) << "\n";
+                }
             }
         }
     } else {
@@ -125,18 +128,24 @@ void Engine::findWords() {
             if (result.size() > maxResponses)
                 result.resize(maxResponses);
 
-            cout << "Search result (Top - " << maxResponses << "):\n";
-            for (int i = 0; i < result.size(); i++) {
-                if(result[i].second != 0) {
-                    answer["request_" + std::to_string(iter)]["#" + std::to_string(i + 1)] = {
+
+            if(result[0].second == 0){
+                cout<<"No match found :(\n";
+                answer["request_" + std::to_string(iter)][vecToString(request)] = "No match found :(";
+            }else {
+                cout << "Search result (Top - " << maxResponses << "):\n";
+                for (int i = 0; i < result.size(); i++) {
+                    if (result[i].second != 0) {
+                    answer["request_" + std::to_string(iter)][vecToString(request)]["#" + std::to_string(i + 1)] = {
                             static_cast<double>(result[i].second) / result[0].second,
                             get<1>(filesInfo[result[i].first])};
-                    cout << "#" << i + 1 << " Score: " << std::fixed << std::setprecision(5)
-                         << static_cast<double>(result[i].second) / static_cast<double>(result[0].second) << ", File: "
-                         << get<1>(filesInfo[result[i].first]) << "\n";
+                        cout << "#" << i + 1 << " Score: " << std::fixed << std::setprecision(5)
+                             << static_cast<double>(result[i].second) / static_cast<double>(result[0].second)
+                             << ", File: "
+                             << get<1>(filesInfo[result[i].first]) << "\n";
+                    }
                 }
             }
-
 
             result.clear();
             iter++;
@@ -152,4 +161,11 @@ void Engine::threadFind() {
 
 Engine::~Engine() {
     endLog();
+}
+
+string Engine::vecToString(const vector<string>& vec) {
+    string a = "Words:";
+    for (const auto &i: vec)
+        a += (' ' + i);
+    return a;
 }

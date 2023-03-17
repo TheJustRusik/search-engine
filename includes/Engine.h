@@ -18,6 +18,8 @@ class Engine : public Jsoner {
 
     void threadFind();
 
+    static string vecToString(const vector<string>& vec);
+
 public:
     Engine();
 
