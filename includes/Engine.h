@@ -6,15 +6,15 @@
 #include "Jsoner.h"
 
 class Engine : public Jsoner {
-    int maxLoading;
-    int currLoading;
+    int maxLoading{};
+    int currLoading{};
 
 
     vector<Storage *> storages;
     vector<std::thread> threads;
     std::mutex fileWork;
 
-    void threadFill(const vector<pair<string, int>> &path);
+    void threadFill(const vector<tuple<int, string, time_t>>& path);
 
     void threadFind();
 

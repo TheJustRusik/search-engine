@@ -1,7 +1,6 @@
 #include "../includes/Engine.h"
 
 Engine::Engine() {
-    filesInfo.resize(filesPaths.size());
     fillStorages();
 
     cout << " ██████╗███████╗ █████╗ ██████╗  █████╗ ██╗  ██╗  ███████╗███╗  ██╗ ██████╗ ██╗███╗  ██╗███████╗\n";
@@ -17,14 +16,37 @@ void Engine::fillStorages() {
     newLog("Filling Storages [threads: " + std::to_string(threadsNum) + "; files: " +
            std::to_string(filesPaths.size()) + "]", 1);
 
-    vector<vector<pair<string, int>>> pathsForThreads;
+    vector<vector<tuple<int, string, time_t>>> pathsForThreads;
+
     pathsForThreads.resize(threadsNum);
 
-    int iter = 0, id = 0;
+
+    int iter = 0, id;
+    if(filesInfo.empty()){
+        id = 0;
+    }else {
+        id = get<0>(*std::max_element(filesInfo.begin(), filesInfo.end(),
+                                          [](const auto &a, const auto &b) -> bool {
+                                              return get<0>(a) < get<0>(b);
+                                          })) + 1;
+    }
+
+    if(filesInfo.size() < filesPaths.size())
+        filesInfo.resize(filesPaths.size());
+
     for (const auto &path: filesPaths) {
-        pathsForThreads[iter].emplace_back(path, id);
+        time_t tempTime = -1;
+        int tempID = id;
+        for (auto fileInfo: filesInfo)
+            if (get<1>(fileInfo) == path) {
+                tempTime = get<2>(fileInfo);
+                tempID = get<0>(fileInfo);
+                break;
+            }
+        pathsForThreads[iter].emplace_back(tempID, path, tempTime);
         iter = iter + 1 < threadsNum ? iter + 1 : 0;
-        id++;
+        if(tempTime == -1)//if file already in filesInfo.json. tempTime will change so id don't should increase
+            ++id;
     }
 
     currLoading = 0;
@@ -48,16 +70,9 @@ void Engine::fillStorages() {
     newLog("Successfully", 1);
 }
 
-void Engine::threadFill(const vector<pair<string, int>>& path) {
+void Engine::threadFill(const vector<tuple<int, string, time_t>>& path) {
     for (const auto &p: path) {
-        time_t t = -1;
-        for (auto fileInfo: filesInfo)
-            if (get<1>(fileInfo) == p.first) {
-                t = get<2>(fileInfo);
-                break;
-            }
-
-        storages.push_back(new Storage(p.first, t, p.second, fileWork, filesInfo));
+        storages.push_back(new Storage(get<1>(p), get<2>(p), get<0>(p), fileWork, filesInfo));
 
         fileWork.lock();
         ++currLoading;
