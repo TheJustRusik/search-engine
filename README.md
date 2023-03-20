@@ -25,11 +25,9 @@ How to build:
     > git clone "https://github.com/TheJustRusik/search-engine"
 3. Go to search-engine dir: 
     > cd search-engine 
-4. Create build dir: 
-    > mkdir build
-5. Run this command:
-    > cmake ..
-6. Run this command:
-    > make
+4. Generate CMake cache and files: 
+    > cmake -S . -B build
+5. Build:
+    > cmake --build build
 
-In build folder you will have SearchEngine application. After that, take the .files folder and conf.json from the examples folder (you can also take requests.json) and put them next to the SearchEngine application. Set up conf.json, and you can start using the search engine!
+In build folder you will have SearchEngine application. After that, take the conf.json from the examples folder (you can also take requests.json) and put them next to the SearchEngine application. Set up conf.json, and you can start using the search engine!
