@@ -2,15 +2,22 @@
   "config": {
     "name": "This_is_engine_name",
     "version": "This_is_version_of_engine",
+    "threads": 2,
     "max_responses": 5,
-    "use_requests.json": false
+    "use_requests.json": false,
+    "extensions_mode": "white"
   },
   "files": [
     "C:/Users/file.txt",
-    "/home/%username%/%dirname%/file.txt",
-    "/work/with/any/file/extensions"
+    "/home/%username%/%dirname%/file.yml",
+    "/work/with/any/file/extensions/lol.conf"
   ],
   "directories": [
-
+    "C:/SomeDir/",
+    "/home/Dir/"
+  ],
+  "extensions": [
+    ".something",
+    ".another_extension"
   ]
 }
