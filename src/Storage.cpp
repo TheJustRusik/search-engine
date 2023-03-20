@@ -1,4 +1,4 @@
-#include "../includes/Storage.h"
+#include "Storage.h"
 
 
 bool Storage::haveWord(const string& word) {

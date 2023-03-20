@@ -3,6 +3,8 @@ project(SearchEngine)
 
 set(CMAKE_CXX_STANDARD 23)
 
+include_directories("includes/")
+
 add_executable(SearchEngine src/main.cpp includes/includes.h includes/Engine.h  includes/Logger.h includes/Storage.h src/Storage.cpp src/inlcudes.cpp src/Engine.cpp src/Logger.cpp includes/Jsoner.h src/Jsoner.cpp includes/Jsoner.h src/Jsoner.cpp)
 
 include(FetchContent)

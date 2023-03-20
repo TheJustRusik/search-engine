@@ -2,10 +2,7 @@
 
 #include "includes.h"
 #include "Logger.h"
-#include <iostream>
-#include <filesystem>
-#include <chrono>
-#include <ctime>
+
 
 class Storage : public Logger{
     int docID;

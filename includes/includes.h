@@ -1,7 +1,5 @@
 #pragma once
 
-#define UNICODE
-
 #include <nlohmann/json.hpp>
 #include <iostream>
 #include <fstream>
@@ -13,7 +11,6 @@
 #include <filesystem>
 #include <thread>
 #include <ctime>
-#include <iomanip>
 #include <locale>
 #include <codecvt>
 

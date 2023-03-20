@@ -1,4 +1,4 @@
-#include "../includes/Jsoner.h"
+#include "Jsoner.h"
 
 Jsoner::Jsoner() {
     ifstream configFile("conf.json");

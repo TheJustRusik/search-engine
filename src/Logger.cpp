@@ -1,4 +1,4 @@
-#include "../includes/Logger.h"
+#include "Logger.h"
 
 Logger::Logger(string path) {//path for Logs.txt file
     this->path = path.empty() ? "Logs.txt" : path[path.size() - 1] == '/' ? (path + "Logs.txt") : (path + "/Logs.txt");
