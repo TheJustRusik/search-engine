@@ -175,6 +175,9 @@ void Engine::threadFind() {
 }
 
 Engine::~Engine() {
+    for(auto& storage : storages)
+        delete storage;
+
     endLog();
 }
 

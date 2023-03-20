@@ -7,10 +7,12 @@ int main(){
     SetConsoleOutputCP(CP_UTF8);
 #endif
 
-    auto* a = new Logger();
-    a->startLog();
-    delete(a);
+    auto* logger = new Logger;
+    logger->startLog();
+    delete logger;
 
-    Engine engine;
-    engine.findWords();
+    auto* engine = new Engine;
+    engine->findWords();
+    delete engine;
+
 }
