@@ -36,5 +36,4 @@ struct StringAndNum {
 };
 
 string fileToString(const string& path);
-bool getWord(string& line, string& word, char delim1 = ' ', char delim2 = '\n');
 

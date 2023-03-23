@@ -49,7 +49,8 @@ void Storage::readFile(const string& path) {//read words and their num directly 
 
     std::string text, word;
     text = fileToString(path);
-    while (getWord(text, word)) {
+    std::istringstream iss(text);
+    while (iss >> word) {
         word = fixWord(word);
         if (isUsefulWord(word)) {
             if (haveWord(word)) {

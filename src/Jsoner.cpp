@@ -44,7 +44,7 @@ Jsoner::Jsoner() {
     try{
         useReqJson = config["config"]["use_requests.json"];
         if(useReqJson){
-            ifstream requestsFile("request.json");
+            ifstream requestsFile("requests.json");
             if(requestsFile.is_open()){
                 json requests;
                 requestsFile >> requests;
@@ -52,7 +52,8 @@ Jsoner::Jsoner() {
                 searchWords.resize(temp.size());
                 string temp_word;
                 for(int i = 0; i < temp.size(); i++){
-                    while(getWord(temp[i], temp_word))
+                    std::istringstream iss(temp[i]);
+                    while(iss >> temp_word)
                         searchWords[i].push_back(temp_word);
                 }
             }else{

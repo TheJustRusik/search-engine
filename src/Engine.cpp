@@ -110,9 +110,9 @@ void Engine::findWords() {
              [](pair<int, int> a, pair<int, int> b) -> bool { return a.second > b.second; });
         if (result.size() > maxResponses)
             result.resize(maxResponses);
-        if(result[0].second == 0){
-            cout<<"No match found :(\n";
-        }else {
+        if (result[0].second == 0) {
+            cout << "No match found :(\n";
+        } else {
             cout << "Search result (Top - " << maxResponses << "):\n";
             for (int i = 0; i < result.size(); i++) {
                 if (result[i].second != 0) {
@@ -128,13 +128,9 @@ void Engine::findWords() {
 
         int iter = 1;
         for (const auto &request: searchWords) {
-            cout << "Words to search:\n";
-            for (const auto &word: request)
-                cout << word << ' ';
-            cout << endl;
 
             for (int i = 0; i < storages.size(); i++)
-                result.emplace_back(i, storages[i]->findWords(request));
+                result.emplace_back(storages[i]->getDocID(), storages[i]->findWords(request));
 
 
             sort(result.begin(), result.end(),
@@ -143,21 +139,16 @@ void Engine::findWords() {
             if (result.size() > maxResponses)
                 result.resize(maxResponses);
 
+            string req = "request_" + std::to_string(iter);
 
-            if(result[0].second == 0){
-                cout<<"No match found :(\n";
-                answer["request_" + std::to_string(iter)][vecToString(request)] = "No match found :(";
-            }else {
-                cout << "Search result (Top - " << maxResponses << "):\n";
+            answer[req]["Words"] = request;
+            if (result[0].second == 0) {
+                answer[req]["Result"] = "No match found :(";
+            } else {
                 for (int i = 0; i < result.size(); i++) {
                     if (result[i].second != 0) {
-                    answer["request_" + std::to_string(iter)][vecToString(request)]["#" + std::to_string(i + 1)] = {
-                            static_cast<double>(result[i].second) / result[0].second,
-                            get<1>(filesInfo[result[i].first])};
-                        cout << "#" << i + 1 << " Score: " << std::fixed << std::setprecision(5)
-                             << static_cast<double>(result[i].second) / static_cast<double>(result[0].second)
-                             << ", File: "
-                             << get<1>(filesInfo[result[i].first]) << "\n";
+                        answer[req]["Result"]["#" + std::to_string(i + 1)]["Score"] = static_cast<double>(result[i].second) / result[0].second;
+                        answer[req]["Result"]["#" + std::to_string(i + 1)]["File"] = get<1>(filesInfo[result[i].first]);
                     }
                 }
             }

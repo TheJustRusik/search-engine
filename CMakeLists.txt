@@ -2,16 +2,33 @@ cmake_minimum_required(VERSION 3.24)
 project(SearchEngine)
 
 set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} "-static")
 
-include_directories("includes/")
-
-add_executable(SearchEngine src/main.cpp includes/includes.h includes/Engine.h  includes/Logger.h includes/Storage.h src/Storage.cpp src/inlcudes.cpp src/Engine.cpp src/Logger.cpp includes/Jsoner.h src/Jsoner.cpp includes/Jsoner.h src/Jsoner.cpp)
+set(MY_INCLUDE_DIR
+        ${CMAKE_SOURCE_DIR}/include
+        )
+set(MY_SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 
 include(FetchContent)
 
+include_directories("includes/")
+
+
+FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG release-1.12.1
+)
+FetchContent_MakeAvailable(googletest)
+
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
 FetchContent_MakeAvailable(json)
-FetchContent_Declare(googletest URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip)
+
+include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-target_link_libraries(SearchEngine PRIVATE nlohmann_json::nlohmann_json)
+enable_testing()
+
+
+add_subdirectory(src)
+add_subdirectory(test)

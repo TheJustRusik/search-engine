@@ -2,3 +2,11 @@
 /cmake-build-debug/
 /cmake-build-release/
 /.idea/
+/.files/
+SearchEngine.exe
+test/GtestTests.exe
+Logs.txt
+SearchEngine
+test/GtestTests
+/test/.files/
+conf.json

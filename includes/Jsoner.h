@@ -4,14 +4,14 @@
 #include "Logger.h"
 
 class Jsoner : public Logger{
-    string name;
-    string version;
-    vector<string> dirsPaths;
-    json config;
-
     void getFilesFromDir(const string &initialDir, vector<string> &result, bool whiteListMode);
     bool isInExtensions(const std::string &word);
+
+    vector<string> dirsPaths;
 public:
+    string name;
+    string version;
+    json config;
     vector<string> filesPaths;
     vector<string> extensions;
     int maxResponses;
