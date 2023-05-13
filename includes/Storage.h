@@ -7,7 +7,7 @@
 class Storage : public Logger{
     int docID;
     string dbPath = ".files/";//path for backup of fileName.txt
-    vector<StringAndNum> words;//with this vector our program can represent content of fileName.txt
+    unordered_map<string, int> words;//with this vector our program can represent content of fileName.txt
     vector<tuple<int, string ,time_t>>& filesInfo;
     std::mutex& fileWork;
     time_t fileTimeNow;

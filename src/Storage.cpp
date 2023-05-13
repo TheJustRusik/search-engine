@@ -2,24 +2,13 @@
 
 
 bool Storage::haveWord(const string& word) {
-    if (words.empty())return false;
-    for (const auto& i : words) {
-        if (i.word == word) {
-            return true;
-        }
-    }
-    return false;
+    auto it = words.find(word);
+    return !(it == words.end());//false if not in map, true if it is
 }
 
 int Storage::findWordNum(const string& word) {
-    int iter = 0;
-    for (const auto& i : words) {
-        if (i.word == word) {
-            return iter;
-        }
-        iter++;
-    }
-    return -1;
+    auto it = words.find(word);
+    return it == words.end() ? -1 : it->second;//-1 if word not in map, some num if it is
 }
 
 bool Storage::isUsefulWord(const string& word) {
@@ -54,10 +43,10 @@ void Storage::readFile(const string& path) {//read words and their num directly 
         word = fixWord(word);
         if (isUsefulWord(word)) {
             if (haveWord(word)) {
-                words[findWordNum(word)].num++;
+                words[word]++;
             }
             else {
-                words.push_back({ word, 1 });
+                words[word] = 1;
             }
         }
     }
@@ -85,7 +74,7 @@ void Storage::readDB() {
             dbFile.read(reinterpret_cast<char*>(&len), sizeof(len));
             word.word.resize(len);
             dbFile.read(word.word.data(), len);
-            words.emplace_back(word);
+            words[word.word] = word.num;
         }
         dbFile.close();
     }
@@ -106,11 +95,11 @@ void Storage::writeToDB(const string& path) {
     get<2>(filesInfo[docID]) = fileTimeNow;
 
     if (dbFile) {
-        for (const auto& word : words) {
-            dbFile.write(reinterpret_cast<const char*>(&word.num), sizeof(word.num));
-            size_t len = word.word.length();
+        for (const auto& [word, num] : words) {
+            dbFile.write(reinterpret_cast<const char*>(num), sizeof(num));
+            size_t len = word.length();
             dbFile.write(reinterpret_cast<const char*>(&len), sizeof(len));
-            dbFile.write(word.word.data(), len);
+            dbFile.write(word.data(), len);
         }
         dbFile.close();
     }
@@ -145,10 +134,11 @@ time_t Storage::getFileTime(const string& path) {
 int Storage::findWords(const vector<string>& word) {
     int coincidences = 0;
 
-    for(const auto& wordNum : words){
-        for(const auto& w : word)
-            if(w == wordNum.word)
-                coincidences += wordNum.num;
+
+    for(const auto& w : word){
+        if(haveWord(w)){
+            coincidences += findWordNum(w);
+        }
     }
 
     return coincidences;

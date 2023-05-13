@@ -13,11 +13,13 @@
 #include <ctime>
 #include <locale>
 #include <codecvt>
+#include <unordered_map>
 
 #ifdef _WIN32
 #include <windows.h>
 #endif
 
+using std::unordered_map;
 using std::cout;
 using std::cerr;
 using std::string;
