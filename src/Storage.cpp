@@ -96,7 +96,7 @@ void Storage::writeToDB(const string& path) {
 
     if (dbFile) {
         for (const auto& [word, num] : words) {
-            dbFile.write(reinterpret_cast<const char*>(num), sizeof(num));
+            dbFile.write(reinterpret_cast<const char*>(&num), sizeof(num));
             size_t len = word.length();
             dbFile.write(reinterpret_cast<const char*>(&len), sizeof(len));
             dbFile.write(word.data(), len);
