@@ -14,6 +14,6 @@ TEST(Storage, Test1){
     ASSERT_EQ(storage->findWords({"word"}), 0);
 
     std::filesystem::remove("Logs.txt");
-    std::filesystem::remove(".files/1337.db");
+    std::filesystem::remove(".files/0.db");
     delete storage;
 }
