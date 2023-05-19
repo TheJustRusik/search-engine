@@ -29,10 +29,19 @@ TEST(Engine, Test1){
     ASSERT_EQ(answer["request_4"]["Result"], "No match found :(");
 
     std::filesystem::remove("Logs.txt");
+    std::filesystem::remove(".files/filesInfo.json");
+    std::filesystem::remove(".files/0.db");
+    std::filesystem::remove(".files/1.db");
+    std::filesystem::remove(".files/2.db");
+    std::filesystem::remove(".files/3.db");
+    std::filesystem::remove(".files/4.db");
+    std::filesystem::remove(".files/5.db");
     delete engine;
 }
 
 int main(int argc, char** argv) {
     testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+    int code = RUN_ALL_TESTS();
+    std::filesystem::remove(".files");
+    return code;
 }
