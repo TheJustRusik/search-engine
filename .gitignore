@@ -10,3 +10,5 @@ SearchEngine
 test/GtestTests
 /test/.files/
 conf.json
+/.vscode/
+/build/
